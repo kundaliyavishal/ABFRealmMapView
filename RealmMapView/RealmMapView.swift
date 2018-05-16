@@ -19,8 +19,8 @@ public typealias Annotation = ABFAnnotation
 public typealias AnnotationType = ABFAnnotationType
 
 /**
-The RealmMapView class creates an interface object that inherits MKMapView and manages fetching and displaying annotations for a Realm Swift object class that contains coordinate data.
-*/
+ The RealmMapView class creates an interface object that inherits MKMapView and manages fetching and displaying annotations for a Realm Swift object class that contains coordinate data.
+ */
 open class RealmMapView: MKMapView {
     // MARK: Properties
     
@@ -133,7 +133,7 @@ open class RealmMapView: MKMapView {
             
             let fetchRequest = ABFLocationFetchRequest(entityName: self.entityName!, in: rlmRealm, latitudeKeyPath: self.latitudeKeyPath!, longitudeKeyPath: self.longitudeKeyPath!, for: currentRegion)
             fetchRequest.predicate = NSPredicateForCoordinateRegion(currentRegion, self.latitudeKeyPath!, self.longitudeKeyPath!)
-
+            
             var predicates = [NSPredicate]()
             if let basePred = self.basePredicate {
                 predicates.append(basePred)
@@ -158,10 +158,8 @@ open class RealmMapView: MKMapView {
                 
                 let zoomScale = MKZoomScaleForMapView(self)
                 
-                refreshOperation = BlockOperation { [weak self] in
-                    guard let strongSelf = self else {
-                        return
-                    }
+                refreshOperation = BlockOperation {
+                    let strongSelf = self
                     strongSelf.fetchedResultsController.performClusteringFetch(forVisibleMapRect: visibleMapRect, zoomScale: zoomScale)
                     
                     let annotations = strongSelf.fetchedResultsController.annotations
@@ -169,10 +167,8 @@ open class RealmMapView: MKMapView {
                 }
             }
             else {
-                refreshOperation = BlockOperation { [weak self] in
-                    guard let strongSelf = self else {
-                        return
-                    }
+                refreshOperation = BlockOperation {
+                    let strongSelf = self
                     strongSelf.fetchedResultsController.performFetch()
                     
                     let annotations = strongSelf.fetchedResultsController.annotations
@@ -225,10 +221,8 @@ open class RealmMapView: MKMapView {
     
     fileprivate func addAnnotationsToMapView(_ annotations: Set<ABFAnnotation>) {
         let safeObjects = self.fetchedResultsController.safeObjects
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
+        DispatchQueue.main.async {
+            let strongSelf = self
             
             let currentAnnotations: NSMutableSet
             if strongSelf.annotations.isEmpty {
@@ -250,7 +244,7 @@ open class RealmMapView: MKMapView {
             let toRemove = NSMutableSet(set: currentAnnotations)
             
             toRemove.minus(newAnnotations)
-                
+            
             if strongSelf.zoomOnFirstRefresh && safeObjects.count > 0 {
                 
                 strongSelf.zoomOnFirstRefresh = false
@@ -283,7 +277,7 @@ open class RealmMapView: MKMapView {
             options: UIViewAnimationOptions(),
             animations: {
                 view.transform = CGAffineTransform.identity.scaledBy(x: 1.0, y: 1.0)
-            },
+        },
             completion: nil
         )
     }
@@ -309,10 +303,10 @@ open class RealmMapView: MKMapView {
 }
 
 /**
-Delegate proxy that allows the controller to trigger auto refresh and then rebroadcast to main delegate.
-
-:nodoc:
-*/
+ Delegate proxy that allows the controller to trigger auto refresh and then rebroadcast to main delegate.
+ 
+ :nodoc:
+ */
 extension RealmMapView: MKMapViewDelegate {
     public func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
         self.externalDelegate?.mapView?(mapView, regionWillChangeAnimated: animated)
